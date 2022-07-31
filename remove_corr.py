@@ -1,4 +1,5 @@
 def remove_corr(df,corr_limit=.9):
+  column_list = df.select_dtypes('number').columns
   duplicates=[]
 
   seen=[]
