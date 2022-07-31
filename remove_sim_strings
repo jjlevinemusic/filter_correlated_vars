@@ -1,0 +1,44 @@
+from scipy.stats import entropy
+import pandas as pd
+import numpy as np
+from sklearn.metrics import normalized_mutual_info_score as mif
+
+def entropy1(labels):
+
+  __,counts = np.unique(labels, return_counts=True)
+
+  return entropy(counts)
+def remove_sim_strings(df,min_mif=.9):
+
+    dict1={}
+
+    for i in df.select_dtypes('object').columns.values:
+
+        dict1[i]=entropy1(df[i].fillna('a'))
+
+    column_list = pd.Series(dict1).sort_values(ascending=False).index.values
+
+    seen=[]
+    duplicates = []
+
+    df=df.select_dtypes('object')
+
+    for i in column_list:
+
+        if i not in seen:
+
+            seen.append(i)
+
+            for j in column_list:
+
+                if j not in seen:
+
+                    if mif(df.fillna('a')[i],df.fillna('a')[j])>min_mif:
+
+                        print(i,j,mif(df.fillna('a')[i],df.fillna('a')[j]))
+
+                        duplicates.append(j)
+
+                        seen.append(j)
+    return df.drop(duplicates,axis=1)
+
